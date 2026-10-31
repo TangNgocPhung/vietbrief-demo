@@ -10,7 +10,13 @@ cd vietbrief-demo
 python server.py
 ```
 
-Mở **http://127.0.0.1:8765** để thử chế độ trích xuất câu. Kho mã nguồn không chứa checkpoint, môi trường `.venv`, `models.json` hoặc dữ liệu Test. Để chạy mT5/ViT5 sau khi clone, làm theo mục **Nối mô hình thật**; có thể sao chép thư mục `models/` từ bản demo đã cấu hình trên máy này và tạo `models.json` với đường dẫn tương ứng. Chỉ thành viên được cấp quyền mới truy cập được kho riêng tư.
+Mở **http://127.0.0.1:8765** để thử chế độ trích xuất câu. Kho mã nguồn không chứa checkpoint, môi trường `.venv`, `models.json` hoặc dữ liệu Test. Để chạy mT5/ViT5 sau khi clone, làm theo mục **Nối mô hình thật**; có thể sao chép thư mục `models/` từ bản demo đã cấu hình trên máy này và tạo `models.json` với đường dẫn tương ứng.
+
+## GitHub Pages
+
+Kho mã nguồn được công khai theo lựa chọn của chủ sở hữu để dùng GitHub Pages. Workflow `.github/workflows/pages.yml` xuất bản **chỉ thư mục `dist/`** khi đẩy thay đổi giao diện lên `main`, hoặc khi chạy thủ công từ tab Actions. Mã máy chủ Python, checkpoint và cấu hình riêng của máy không được đóng vào website.
+
+Trên tên miền `github.io`, web tự chọn chế độ **Trích xuất câu**, không gọi API Python và ghi rõ mT5/ViT5 cần chạy trong bản cục bộ. Các chức năng bài mẫu, tải TXT, tính ROUGE, sao chép và tải kết quả vẫn dùng được trên Pages.
 
 ## Trạng thái trên máy này
 

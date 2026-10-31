@@ -4,9 +4,10 @@ export const cleanText = text => text.normalize('NFC').replace(/[\p{Cc}\p{Cf}]/g
 export const syllables = text => (text.normalize('NFC').toLocaleLowerCase('vi').match(/[\p{L}\p{N}_]+/gu) || []);
 export const wordCount = text => text.trim() ? text.trim().split(/\s+/u).length : 0;
 const stopwords = new Set('và là của có trong một các được cho với đã những này đó về từ tại đến sẽ cũng như để khi theo hơn người không đang vào ra trên thì'.split(' '));
-export function extractiveSummary(raw) {
+export function extractiveSummary(raw, { maxSentences = 3 } = {}) {
   if (typeof raw !== 'string' || !raw.trim()) throw new Error('Hãy nhập nội dung bài báo tiếng Việt.');
   if (raw.length > MAX_CHARS) throw new Error('Bài báo vượt 200.000 ký tự. Hãy rút ngắn nội dung.');
+  if (!Number.isInteger(maxSentences) || maxSentences < 1 || maxSentences > 5) throw new Error('Số câu trích xuất cần từ 1 đến 5.');
   const text = cleanText(raw);
   if (!syllables(text).length) throw new Error('Nội dung cần có chữ hoặc số để tóm tắt.');
   const allSentences = text.match(/[^.!?…]+(?:[.!?…]+[”"’']*|$)/gu) || [text];
@@ -21,7 +22,7 @@ export function extractiveSummary(raw) {
     return { index, score: score * (index === 0 ? 1.25 : 1), words: new Set(words) };
   });
   ranked.sort((a,b) => b.score - a.score || a.index - b.index);
-  const target = Math.min(3, Math.max(1, Math.ceil(considered.length * .25)));
+  const target = Math.min(maxSentences, Math.max(1, Math.ceil(considered.length * .25)));
   const picked = [];
   for (const candidate of ranked) {
     if (picked.every(other => {
@@ -31,7 +32,7 @@ export function extractiveSummary(raw) {
     if (picked.length >= target) break;
   }
   const summary = picked.sort((a,b) => a.index-b.index).map(x => considered[x.index]).join(' ');
-  return { summary, sentences_selected: picked.length, sentences_total: sentences.length, truncated: sentences.length > 500, input_tokens: null, model: 'extractive', label: 'Trích xuất câu', warnings: ['Kết quả trích xuất câu để thử giao diện; không phải đầu ra mT5/ViT5.', ...(sentences.length > 500 ? ['Chế độ thử chỉ xét 500 câu đầu.'] : [])] };
+  return { summary, selected_sentences: picked.map(x => ({ index: x.index + 1, text: considered[x.index] })), sentences_selected: picked.length, sentences_total: sentences.length, truncated: sentences.length > 500, input_tokens: null, model: 'extractive', label: 'Trích xuất câu', warnings: ['Kết quả trích xuất câu để thử giao diện; không phải đầu ra mT5/ViT5.', ...(sentences.length > 500 ? ['Chế độ thử chỉ xét 500 câu đầu.'] : [])] };
 }
 const ngrams = (tokens, n) => {
   const counts = new Map();
@@ -52,4 +53,9 @@ export function rouge(prediction, reference) {
   for(const token of p){const next=new Uint16Array(r.length+1);for(let j=1;j<=r.length;j++)next[j]=token===r[j-1]?prev[j-1]+1:Math.max(prev[j],next[j-1]);prev=next;}
   result.rougeL=f1(prev[r.length],p.length,r.length);
   return result;
+}
+
+export function newNumberStrings(prediction, source) {
+  const original = new Set(source.match(/\d+/g) || []);
+  return [...new Set(prediction.match(/\d+/g) || [])].filter(number => !original.has(number));
 }

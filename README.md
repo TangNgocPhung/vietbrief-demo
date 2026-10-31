@@ -2,6 +2,18 @@
 
 Web demo dựa trên notebook `NLP_Nhóm_3_Cuối_kỳ (8).ipynb` và PDF `NHÓM 5 · MÔN XỬ LÝ NGÔN NGỮ TỰ NHIÊN.pdf`.
 
+## Bản nâng cấp 2.0
+
+- Thư viện 6 bài có tìm kiếm không dấu và bộ lọc: 3 cặp bài–tham chiếu nguyên văn từ tập Test XL-Sum đã cung cấp, 3 cặp tự soạn. Mỗi bài hiển thị nguồn và trạng thái tin lưu trữ/minh họa. Dữ liệu XL-Sum/BBC theo [CC BY-NC-SA 4.0](https://huggingface.co/datasets/csebuetnlp/xlsum); tên hiển thị của ba bài Test được đặt để nhận biết chủ đề, không thay đổi nội dung bài hay tham chiếu.
+- Chọn trích xuất tối đa 1, 2, 3 hoặc 5 câu; xem vị trí và nội dung những câu được chọn trong bài gốc. Thuật toán vẫn giữ thứ tự nguồn và hạn chế câu gần trùng nhau.
+- Tiến trình ghi rõ mô hình đang chạy và thời gian chờ thực tế. Khi so sánh, kết quả thứ nhất hiện ngay sau khi hoàn tất; nếu mô hình sau gặp lỗi hoặc người dùng dừng chờ, phần đã hoàn thành được giữ lại.
+- Nút **Dừng chờ** hủy yêu cầu ở trình duyệt; không dừng tác vụ PyTorch đang chạy trên máy chủ. Máy chủ có thể tiếp tục xử lý và từ chối yêu cầu mới bằng 429 cho tới khi xong.
+- Bảng đối chiếu token, thời gian và ROUGE cho hai mô hình; nút mở rộng để xem hai kết quả cạnh nhau trên màn hình rộng.
+- Sửa tham chiếu và tính lại ROUGE mà không chạy lại mô hình. Sửa nội dung bài mẫu sẽ gỡ tham chiếu mẫu để tránh chấm nhầm. Kết quả cũ có cảnh báo khi đầu vào/tham chiếu đã thay đổi.
+- Cờ chuỗi chữ số mới dùng cùng cách dò `\d+` như phần phân tích lỗi trong notebook: chỉ gợi ý rà soát, không tự kết luận đúng/sai hoặc tính điểm trung thực.
+- Lịch sử tối đa 5 lần chạy trong bộ nhớ của phiên, không dùng localStorage; tải lại trang sẽ mất lịch sử. Khôi phục được bài gốc, tham chiếu và kết quả mà không chạy lại.
+- Xuất kết quả TXT hoặc JSON kèm đầu vào, tham chiếu, thông số và trạng thái hoàn tất/một phần. Thư viện, lịch sử và xuất kết quả hoạt động trên GitHub Pages; checkpoint chỉ chạy qua Python cục bộ.
+
 ## Lấy mã nguồn từ GitHub
 
 ```powershell
@@ -34,7 +46,7 @@ Nhấp đúp `start-demo.bat`, sau đó mở **http://127.0.0.1:8765**. Hoặc m
 python server.py
 ```
 
-Cần Python 3.10 trở lên. Chế độ **Trích xuất câu** không cần cài thêm thư viện, chạy ngay trên trình duyệt. Chế độ này chọn tối đa ba câu từ bài gốc, dùng tần suất âm tiết và hạn chế câu trùng ý; **không phải mT5/ViT5**. Số âm tiết được đếm theo khoảng trắng, không phải số token tokenizer. Nút tải TXT nhận văn bản UTF-8.
+Cần Python 3.10 trở lên. Chế độ **Trích xuất câu** không cần cài thêm thư viện, chạy ngay trên trình duyệt. Chế độ này mặc định chọn tối đa ba câu từ bài gốc (có thể chọn giới hạn 1, 2, 3 hoặc 5), dùng tần suất âm tiết và hạn chế câu trùng ý; **không phải mT5/ViT5**. Số âm tiết được đếm theo khoảng trắng, không phải số token tokenizer. Nút tải TXT nhận văn bản UTF-8.
 
 ## Nối mô hình thật
 
@@ -83,7 +95,7 @@ Khi checkpoint sẵn sàng, web tự chọn mT5 nếu có; nếu chỉ có ViT5 
 
 ## Chức năng
 
-- Dán bài báo hoặc tải TXT, ba bài minh họa tự soạn, đếm âm tiết/ký tự.
+- Dán bài báo hoặc tải TXT, sáu bài mẫu có ghi nguồn, đếm âm tiết/ký tự.
 - Giới hạn 200.000 ký tự; chuẩn hóa NFC; thông báo đầu vào rỗng và lỗi checkpoint.
 - Nạp mô hình và tokenizer từ checkpoint cục bộ, `local_files_only=True`; không tự tải model, không huấn luyện lại.
 - Sinh theo notebook: input 512, `num_beams=4`, `length_penalty=1.0`, `no_repeat_ngram_size=3`, `max_new_tokens=128`; không thêm tiền tố tác vụ.
@@ -120,3 +132,5 @@ Các kiểm tra bao gồm trích xuất câu, ROUGE tiếng Việt, giới hạn
 Ngày 31/10/2026 đã chạy hai checkpoint `run04` thật trên CPU với mẫu đầu của `processed/test.csv` (ID `060116_indonesia_birdflu`). Đầu ra của **cả hai mô hình trùng hoàn toàn** cột `prediction` trong `predictions_mt5.csv` / `predictions_vit5.csv` của cùng run. ViT5: 344 token, sinh khoảng 9,34 giây; mT5: 659 token, đọc 512 token có cảnh báo, sinh khoảng 9,56 giây. Thời gian này không gồm nạp checkpoint và chỉ phản ánh một mẫu, không phải tốc độ trung bình toàn bộ Test. Chi tiết được lưu tại `validation/sample.json` và `validation/inference_results.json` trên máy này. Kết quả khớp checkpoint không có nghĩa mọi dữ kiện sinh ra đều chính xác; cần đối chiếu bài gốc.
 
 Đã kiểm tra thêm luồng **So sánh mT5 & ViT5** trực tiếp trên giao diện với bài mẫu Giáo dục: hai yêu cầu trả về thành công, hiển thị hai kết quả riêng cùng token, CPU, thời gian sinh và ROUGE. Thời gian sinh quan sát được là 13,64 giây (mT5) và 9,52 giây (ViT5), chưa gồm nạp trọng số. Trang giới thiệu hiển thị cả hai checkpoint đã kết nối. 8 kiểm tra tự động JavaScript/Python đều đạt.
+
+Kiểm chứng bản 2.0: 6 kiểm tra JavaScript và 4 kiểm tra Python đều đạt. Đã thử trên trình duyệt việc tìm bài không dấu, lọc thư viện, nạp đúng nguồn/tham chiếu, giới hạn một câu, tính lại ROUGE, gỡ tham chiếu khi sửa bài, cảnh báo kết quả cũ, khôi phục lịch sử và dừng chờ. Hai checkpoint thật chạy thành công với bài XL-Sum `070117_intel_cheap_laptop`; JSON tải qua giao diện được đọc lại và xác nhận có đủ đầu vào, tham chiếu, hai kết quả, số token và ROUGE. Giao diện không tràn ngang ở viewport 1440 px và 390 px. Các con số quan sát trong demo là kết quả từng mẫu, không phải kết luận xếp hạng trên toàn bộ Test.

@@ -14,6 +14,8 @@ Mở **http://127.0.0.1:8765** để thử chế độ trích xuất câu. Kho m
 
 ## GitHub Pages
 
+[Mở VietBrief trực tuyến](https://tangngocphung.github.io/vietbrief-demo/).
+
 Kho mã nguồn được công khai theo lựa chọn của chủ sở hữu để dùng GitHub Pages. Workflow `.github/workflows/pages.yml` xuất bản **chỉ thư mục `dist/`** khi đẩy thay đổi giao diện lên `main`, hoặc khi chạy thủ công từ tab Actions. Mã máy chủ Python, checkpoint và cấu hình riêng của máy không được đóng vào website.
 
 Trên tên miền `github.io`, web tự chọn chế độ **Trích xuất câu**, không gọi API Python và ghi rõ mT5/ViT5 cần chạy trong bản cục bộ. Các chức năng bài mẫu, tải TXT, tính ROUGE, sao chép và tải kết quả vẫn dùng được trên Pages.

@@ -152,6 +152,11 @@ select{font:inherit;border:1px solid #dce4d3;color:#58704a;background:#fff;borde
 .pipeline small{font-size:10px;color:#98a88a}
 .pipeline b{font-weight:400;color:#a4b58e;font-size:20px}
 footer{font-size:9px}
+.input-panel>.panel-heading{flex-wrap:wrap;row-gap:6px}
+.input-actions{flex-wrap:wrap;gap:12px}
+.input-actions .text-button{white-space:nowrap}
+.upload-help{font-size:10px;color:var(--muted);margin:8px 0 0;line-height:1.7}
+.upload-status{font-size:11px;color:var(--green);background:#f0f4e9;border-radius:5px;padding:8px 10px;margin:9px 0 0;overflow-wrap:anywhere}
 .error-message{font-size:12px}
 @media(max-width:1100px){.sample-library{grid-template-columns:repeat(2,minmax(0,1fr))}.quick-guide{gap:15px}.quick-guide button{margin-left:0}.brand-label{display:none}.topbar nav{gap:20px}.submit-row>span{display:none}.reference-box summary{flex-wrap:wrap}.result-actions{gap:10px}}
 @media(max-width:760px){.editor-grid{grid-template-columns:minmax(0,1fr)}.input-panel{border-right:0;border-bottom:1px solid var(--line)}.results-focus #results[data-count="2"]{grid-template-columns:1fr}.results-focus #results[data-count="2"] .result-card+.result-card{border-top:1px solid var(--line);padding-top:20px}.empty-state{min-height:260px}.model-toolbar{gap:10px}.compare-control{margin-left:0}.intro-art{display:none}.intro-copy{font-size:13px}.quick-guide{font-size:10px}.quick-guide button{flex-basis:100%;text-align:left}.library-view h1{font-size:40px}.pipeline{flex-wrap:wrap;justify-content:center}.project-cards{grid-template-columns:1fr}}

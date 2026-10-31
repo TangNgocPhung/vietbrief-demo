@@ -33,7 +33,9 @@
     <div class="method-notice" id="method-notice">Chọn câu có sẵn trong bài; đây không phải kết quả của mT5/ViT5.</div>
     <div class="editor-grid">
       <section class="input-panel">
-        <div class="panel-heading"><h3><span class="small-icon">≡</span> Bài báo gốc</h3><div class="input-actions"><button class="text-button" id="upload">↑ Tải .txt</button><button class="icon-button" id="clear" aria-label="Xóa nội dung" title="Xóa nội dung">↺</button></div></div>
+        <div class="panel-heading"><h3><span class="small-icon">≡</span> Bài báo gốc</h3><div class="input-actions"><button class="text-button" id="upload" data-upload=".txt,text/plain" title="Tải văn bản UTF-8">↑ TXT</button><button class="text-button" id="upload-pdf" data-upload=".pdf,application/pdf" title="Tải PDF có văn bản">↑ PDF</button><button class="text-button" id="upload-word" data-upload=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" title="Tải Word (.docx)">↑ Word</button><button class="icon-button" id="clear" aria-label="Xóa nội dung" title="Xóa nội dung">↺</button></div></div>
+        <p class="upload-help">Tải TXT, PDF hoặc Word (.docx) · Tối đa 20 MB. PDF scan cần nhận dạng chữ (OCR).</p>
+        <p class="upload-status" id="upload-status" role="status" aria-live="polite" hidden></p>
         <div id="sample-provenance" class="provenance" hidden></div>
         <label class="sr-only" for="article">Nội dung bài báo tiếng Việt</label>
         <textarea id="article" placeholder="Dán nội dung bài báo tiếng Việt vào đây…&#10;&#10;Hoặc mở thư viện để chọn bài XL-Sum có sẵn bản tóm tắt tham chiếu." maxlength="200000" spellcheck="false"></textarea>
@@ -74,7 +76,7 @@
 </section>
 </main>
 <footer><a class="footer-brand" href="#">VietBrief<span> / NLP DEMO 2.0</span></a><span>Đọc có chọn lọc. Kiểm chứng có trách nhiệm.</span><span>Đồ án xử lý ngôn ngữ tự nhiên · 2026</span></footer>
-<input type="file" id="file" accept=".txt,text/plain" hidden>
+<input type="file" id="file" accept=".txt,.pdf,.docx,text/plain,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" hidden>
 <script type="module" src="app.js"></script>
 </body>
 </html>

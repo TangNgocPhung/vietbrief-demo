@@ -1,5 +1,6 @@
 import { extractiveSummary, rouge, wordCount, newNumberStrings, MAX_CHARS } from './engine.js';
 import { samples } from './samples.js';
+import { readDocument } from './document-import.js';
 
 const $ = id => document.getElementById(id);
 const isGitHubPages = location.hostname.endsWith('.github.io');
@@ -78,7 +79,7 @@ async function checkBackend() {
   document.querySelectorAll('[data-model-status]').forEach(cell => {
     cell.textContent = canUse(cell.dataset.modelStatus) ? 'Đã kết nối · run04' : isGitHubPages ? 'Dùng trong bản Python' : 'Chưa sẵn sàng';
   });
-  $('refresh-connection').disabled = false;
+  $('refresh-connection').disabled = state.busy;
   syncMethod();
 }
 function setFocusResults(active) {
@@ -112,6 +113,7 @@ function renderProvenance() {
 }
 function loadSample(key) {
   if (state.busy) return;
+  $('upload-status').hidden = true;
   const sample = samples.find(item => item.key === key);
   if (!sample) return;
   state.sample = sample; state.inputTitle = sample.title; state.inputNote = '';
@@ -233,7 +235,7 @@ function renderHistory() {
     $('history-list').append(button);
   });
 }
-function setBusy(active) {
+function setBusy(active, importing = false) {
   state.busy = active;
   if (active) {
     document.querySelectorAll('button,input,textarea,select').forEach(element => {
@@ -245,8 +247,9 @@ function setBusy(active) {
       element.disabled = element.dataset.wasDisabled === 'true'; delete element.dataset.wasDisabled;
     });
   }
-  $('output-panel').setAttribute('aria-busy', String(active));
-  $('run-progress').hidden = !active;
+  $('output-panel').setAttribute('aria-busy', String(active && !importing));
+  $('article').setAttribute('aria-busy', String(active && importing));
+  $('run-progress').hidden = !active || importing;
   if (!active) { syncMethod(); updateFields(); renderHistory(); }
 }
 async function run() {
@@ -339,24 +342,29 @@ $('cancel-run').addEventListener('click', () => { if (state.controller) { state.
 document.addEventListener('keydown', event => { if ((event.ctrlKey || event.metaKey) && event.key === 'Enter' && !$('demo-view').hidden) { event.preventDefault(); run(); } });
 $('focus-results').addEventListener('click', () => setFocusResults(!$('workspace').classList.contains('results-focus')));
 $('clear').addEventListener('click', () => {
+  $('upload-status').hidden = true;
   $('article').value = ''; $('reference').value = ''; $('file').value = '';
   state.sample = null; state.inputNote = ''; state.inputTitle = 'Bài nhập của bạn'; state.run = null;
   renderProvenance(); renderRun(); setError(); setFocusResults(false); $('article').focus();
 });
 $('clear-history').addEventListener('click', () => { state.history = []; renderHistory(); });
-$('upload').addEventListener('click', () => $('file').click());
+document.querySelectorAll('[data-upload]').forEach(button => button.addEventListener('click', () => {
+  if (state.busy) return;
+  $('file').accept = button.dataset.upload;
+  $('file').click();
+}));
 $('file').addEventListener('change', async () => {
-  const file = $('file').files[0]; if (!file) return;
+  const file = $('file').files[0]; if (!file || state.busy) return;
+  setError(); setBusy(true, true);
+  $('upload-status').hidden = false;
   try {
-    if (!/\.txt$/i.test(file.name)) throw new Error('Hãy chọn tệp .txt mã hóa UTF-8.');
-    if (file.size > 800000) throw new Error('Tệp quá lớn; chỉ hỗ trợ tối đa 200.000 ký tự.');
-    const text = await file.text();
-    if (text.length > MAX_CHARS) throw new Error('Tệp vượt 200.000 ký tự.');
+    const {text, note} = await readDocument(file, message => { $('upload-status').textContent = message; });
     $('article').value = text; $('reference').value = '';
-    state.sample = null; state.inputNote = `Tệp đã nạp: ${file.name}`; state.inputTitle = file.name;
+    state.sample = null; state.inputNote = `Tệp đã nạp: ${file.name}${note ? ` · ${note}` : ''}`; state.inputTitle = file.name;
     renderProvenance(); updateFields(); setError(); setFocusResults(false);
+    $('upload-status').textContent = `Đã đọc ${file.name} · ${number(text.length)} ký tự.`;
   } catch (error) { setError(error.message); }
-  finally { $('file').value = ''; }
+  finally { $('file').value = ''; setBusy(false); $('upload-status').hidden = !$('error').hidden; }
 });
 $('copy').addEventListener('click', async () => {
   try { await navigator.clipboard.writeText(resultText()); $('copy-status').textContent = 'Đã sao chép'; setTimeout(() => { $('copy-status').textContent = ''; }, 2500); }

@@ -30,7 +30,7 @@ Mở **http://127.0.0.1:8765** để thử chế độ trích xuất câu. Kho m
 
 Kho mã nguồn được công khai theo lựa chọn của chủ sở hữu để dùng GitHub Pages. Workflow `.github/workflows/pages.yml` xuất bản **chỉ thư mục `dist/`** khi đẩy thay đổi giao diện lên `main`, hoặc khi chạy thủ công từ tab Actions. Mã máy chủ Python, checkpoint và cấu hình riêng của máy không được đóng vào website.
 
-Trên tên miền `github.io`, web tự chọn chế độ **Trích xuất câu**, không gọi API Python và ghi rõ mT5/ViT5 cần chạy trong bản cục bộ. Các chức năng bài mẫu, tải TXT, tính ROUGE, sao chép và tải kết quả vẫn dùng được trên Pages.
+Trên tên miền `github.io`, web tự chọn chế độ **Trích xuất câu**, không gọi API Python và ghi rõ mT5/ViT5 cần chạy trong bản cục bộ. Các chức năng bài mẫu, tải TXT/PDF/Word (.docx), tính ROUGE, sao chép và tải kết quả vẫn dùng được trên Pages.
 
 ## Trạng thái trên máy này
 
@@ -95,7 +95,8 @@ Khi checkpoint sẵn sàng, web tự chọn mT5 nếu có; nếu chỉ có ViT5 
 
 ## Chức năng
 
-- Dán bài báo hoặc tải TXT, sáu bài mẫu có ghi nguồn, đếm âm tiết/ký tự.
+- Dán bài báo hoặc tải TXT, PDF, Word (.docx); sáu bài mẫu có ghi nguồn, đếm âm tiết/ký tự.
+- Ba nút tải tệp trong phần **Bài báo gốc** tự đọc nội dung vào ô nhập, xử lý ngay trong trình duyệt. Tối đa 20 MB/tệp, 500 trang PDF và 200.000 ký tự; báo tiến trình từng trang. PDF scan/ảnh cần OCR trước; PDF có mật khẩu cần lưu bản không đặt mật khẩu; Word `.doc` cũ cần lưu thành `.docx`. Tệp lỗi không thay thế bài và tham chiếu hiện có. Tệp đọc thành công sẽ gỡ tham chiếu của bài trước để tránh đối chiếu nhầm.
 - Giới hạn 200.000 ký tự; chuẩn hóa NFC; thông báo đầu vào rỗng và lỗi checkpoint.
 - Nạp mô hình và tokenizer từ checkpoint cục bộ, `local_files_only=True`; không tự tải model, không huấn luyện lại.
 - Sinh theo notebook: input 512, `num_beams=4`, `length_penalty=1.0`, `no_repeat_ngram_size=3`, `max_new_tokens=128`; không thêm tiền tố tác vụ.
@@ -116,12 +117,14 @@ Khi checkpoint sẵn sàng, web tự chọn mT5 nếu có; nếu chỉ có ViT5 
 
 ## Bản web được lưu trữ
 
-Thư mục `dist/` có thể lưu trữ tĩnh. Bản này hỗ trợ trích xuất câu, TXT, ROUGE, sao chép và tải kết quả ngay trên trình duyệt. Máy chủ PyTorch cần chạy tại máy có checkpoint; hosting tĩnh không chạy checkpoint GPU. Do đó mT5/ViT5 chỉ chạy khi mở web từ máy chủ Python ở trên. Bài báo không được gửi đi trong chế độ trích xuất; font Google có thể được tải qua mạng, có font dự phòng nếu ngoại tuyến.
+Thư mục `dist/` có thể lưu trữ tĩnh. Bản này hỗ trợ trích xuất câu, tải TXT/PDF/Word (.docx), ROUGE, sao chép và tải kết quả ngay trên trình duyệt. Bộ đọc PDF.js và Mammoth được đóng kèm trong `dist/vendor/`, chỉ nạp khi chọn loại tệp tương ứng. Máy chủ PyTorch cần chạy tại máy có checkpoint; hosting tĩnh không chạy checkpoint GPU. Do đó mT5/ViT5 chỉ chạy khi mở web từ máy chủ Python ở trên. Bài báo không được gửi đi trong chế độ trích xuất; font Google có thể được tải qua mạng, có font dự phòng nếu ngoại tuyến.
+
+Để cập nhật các thư viện đọc tài liệu: dùng Node.js 22.13+ hoặc 24+, chạy `npm ci --ignore-scripts` rồi `npm run vendor:imports`. Khi chạy demo hoặc đưa thư mục `dist/` lên Pages không cần cài Node.js.
 
 ## Kiểm tra
 
 ```powershell
-node --test tests/engine.test.mjs
+npm test
 python -m unittest discover -s tests -p "test_*.py" -v
 ```
 

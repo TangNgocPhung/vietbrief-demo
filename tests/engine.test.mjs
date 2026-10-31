@@ -1,0 +1,7 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { extractiveSummary, rouge, cleanText } from '../dist/engine.js';
+test('rejects blank and oversized input',()=>{assert.throws(()=>extractiveSummary('  '));assert.throws(()=>extractiveSummary('a'.repeat(200001)));assert.throws(()=>extractiveSummary('...'));});
+test('extracts whole source sentences in original order',()=>{const text='Nhà trường mở thư viện số. Thư viện số hỗ trợ tra cứu tài liệu. Sinh viên dùng tài khoản trường. Tài liệu được kiểm tra bản quyền. Người học gửi phản hồi.';const r=extractiveSummary(text);assert.equal(r.model,'extractive');assert.equal(r.input_tokens,null);assert.ok(r.sentences_selected<=3);const sentences=r.summary.match(/[^.]+\./g);let position=-1;for(const sentence of sentences){const next=text.indexOf(sentence.trim());assert.ok(next>position);position=next;}});
+test('ROUGE handles Vietnamese NFC and repeated ngrams correctly',()=>{assert.deepEqual(rouge('Hà Nội rất đẹp.','Hà Nội rất đẹp'),{rouge1:100,rouge2:100,rougeL:100});assert.deepEqual(rouge('a a a','a a'),{rouge1:80,rouge2:200/3,rougeL:80});assert.deepEqual(rouge('mèo','chó'),{rouge1:0,rouge2:0,rougeL:0});});
+test('strips hidden characters and bounds pathological sentence count',()=>{assert.equal(cleanText('a\u200b b\n c'),'a b c');const r=extractiveSummary('Câu có thông tin. '.repeat(600));assert.equal(r.truncated,true);});
